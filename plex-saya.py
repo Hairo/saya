@@ -5,7 +5,7 @@ import urllib.request as ur
 import hummingbird as hb
 
 cf = configparser.ConfigParser()
-cf.read('sayat.conf')
+cf.read('saya.conf')
 
 host = cf["plex"]["host"]
 port = cf["plex"]["port"]
