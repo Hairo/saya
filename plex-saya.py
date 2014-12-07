@@ -7,7 +7,10 @@ import hummingbird as hb
 cf = configparser.ConfigParser()
 cf.read('saya.conf')
 
-url = "http://localhost:32400/library/sections/1/recentlyViewed"
+host = cf["plex"]["host"]
+port = cf["plex"]["port"]
+
+url = "http://"+host+":"+port+"/library/sections/1/recentlyViewed"
 doc = xml.dom.minidom.parse(ur.urlopen(url))
 attr = doc.getElementsByTagName("Video")[0].getAttribute("title")
 
