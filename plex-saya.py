@@ -5,7 +5,7 @@ import urllib.request as ur
 import hummingbird as hb
 
 cf = configparser.ConfigParser()
-cf.read('saya.conf')
+cf.read('sayat.conf')
 
 host = cf["plex"]["host"]
 port = cf["plex"]["port"]
@@ -24,7 +24,7 @@ def update_hb_lib():
 	for i in range(len(bird)):
   		titles.append(bird[i].anime.title.lower())
 
-	ep_no = int(attr.split(" - ")[1])
+	plex_ep = int(attr.split(" - ")[1])
 	ep_title = attr.split(" - ")[0]
 	
 	keyword = max(ep_title.split(" "), key=len).lower()
@@ -35,15 +35,12 @@ def update_hb_lib():
 		ep_watched = bird[res].episodes_watched
 		break
 	
-	print(ep_title, ep_no)
+	print(ep_title, plex_ep)
 	print(hb_id, ep_watched)
 
-	if ep_no >= ep_watched:
-		print("No lo has visto!!")
-		hum.update_entry(hb_id, episodes_watched=ep_no)
-	else:
-		print("Ya lo viste...")		
-		
+	if ep_watched < plex_ep:
+		hum.update_entry(hb_id, episodes_watched=plex_ep)
+		print("List updated.")
 
 while True:
 	update_hb_lib()
