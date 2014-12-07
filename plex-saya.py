@@ -38,11 +38,12 @@ def update_hb_lib():
 	print(ep_title, ep_no)
 	print(hb_id, ep_watched)
 
-	if ep_no <= ep_watched:
-		print("Ya lo viste...")
-	else:
+	if ep_no >= ep_watched:
 		print("No lo has visto!!")
 		hum.update_entry(hb_id, episodes_watched=ep_no)
+	else:
+		print("Ya lo viste...")		
+		
 
 while True:
 	update_hb_lib()
