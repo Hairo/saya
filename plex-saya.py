@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import xml.dom.minidom, configparser
+import xml.dom.minidom, configparser, time
 import urllib.request as ur
 import hummingbird as hb
 
@@ -41,4 +41,6 @@ def update_hb_lib():
 		print("No lo has visto!!")
 		hum.update_entry(hb_id, episodes_watched=ep_no)
 
-update_hb_lib()
+while True:
+	update_hb_lib()
+	time.sleep(5)
