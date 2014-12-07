@@ -11,12 +11,12 @@ url = "http://localhost:32400/library/sections/1/recentlyViewed"
 doc = xml.dom.minidom.parse(ur.urlopen(url))
 attr = doc.getElementsByTagName("Video")[0].getAttribute("title")
 
-username = cf["hummingbird.me"]["user"]
-passw = cf["hummingbird.me"]["password"]
-hum = hb.Hummingbird(username, passw)
-bird = hum.get_library(username, status="currently-watching")
-
 def update_hb_lib():
+	username = cf["hummingbird.me"]["user"]
+	passw = cf["hummingbird.me"]["password"]
+	hum = hb.Hummingbird(username, passw)
+	bird = hum.get_library(username, status="currently-watching")
+
 	titles = []
 	for i in range(len(bird)):
   		titles.append(bird[i].anime.title.lower())
