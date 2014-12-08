@@ -30,8 +30,9 @@ def update_hb_lib():
   		titles.append(bird[i].anime.title.lower())
 
 	# split plex data to get the show name and episode watched
-	plex_ep = re.findall(r'- (.*?) ',attr)[0]
-	ep_title = attr.split(" - ")[0]
+	plex_video_tag = re.findall(r"(.*?)(?:\[.*?\]|$)", attr)[1].strip()
+	plex_ep = plex_video_tag.split(" - ")[1]
+	ep_title = plex_video_tag.split(" - ")[0]
 
 	# get currently watching list data from hummingbird and compare it with the
 	# last watched item from plex
