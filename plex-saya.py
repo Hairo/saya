@@ -28,7 +28,6 @@ def update_hb_lib():
   		titles.append(bird[i].anime.title.lower())
 
 	# split plex data to get the show name and episode watched
-	# plex_ep = int(attr.split(" - ")[1])
 	plex_ep = int(re.findall(r'- (.*?) ',attr)[0])
 	ep_title = attr.split(" - ")[0]
 
@@ -47,7 +46,7 @@ def update_hb_lib():
 
 		# check if already watched that episode
 		if ep_watched < plex_ep:
-			# hum.update_entry(hb_id, episodes_watched=plex_ep)
+			hum.update_entry(hb_id, episodes_watched=plex_ep)
 			print("List updated.")
 	except ValueError:
 		print("Not in list")
