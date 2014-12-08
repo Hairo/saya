@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
-import xml.dom.minidom, configparser, time
+import xml.dom.minidom, configparser, time, re
 import urllib.request as ur
 import hummingbird as hb
 
 # read config file
 cf = configparser.ConfigParser()
-cf.read('sayat.conf')
+cf.read('saya.conf')
 
 # Get last watched item from plex xml data
 host = cf["plex"]["host"]
@@ -28,24 +28,29 @@ def update_hb_lib():
   		titles.append(bird[i].anime.title.lower())
 
 	# split plex data to get the show name and episode watched
-	plex_ep = int(attr.split(" - ")[1])
+	# plex_ep = int(attr.split(" - ")[1])
+	plex_ep = int(re.findall(r'- (.*?) ',attr)[0])
 	ep_title = attr.split(" - ")[0]
 
-	# get currently watching list data from hummingbird
-	keyword = max(ep_title.split(" "), key=len).lower()
-	for t in range(len(titles)):
-		res = titles.index("".join([x for x in titles if keyword in x]))
-		hb_id = bird[res].anime.anime_id 				# anime id
-		ep_watched = bird[res].episodes_watched			# watched count
-		break
-	
-	print(ep_title, plex_ep)
-	print(hb_id, ep_watched)
+	# get currently watching list data from hummingbird and compare it with the
+	# last watched item from plex
+	try:
+		keyword = max(ep_title.split(" "), key=len).lower()
+		for t in range(len(titles)):
+			res = titles.index("".join([x for x in titles if keyword in x]))
+			hb_id = bird[res].anime.anime_id 				# anime id
+			ep_watched = bird[res].episodes_watched			# watched count
+			break
 
-	# check if already watched that episode
-	if ep_watched < plex_ep:
-		hum.update_entry(hb_id, episodes_watched=plex_ep)
-		print("List updated.")
+		print(ep_title, plex_ep)
+		print(hb_id, ep_watched)
+
+		# check if already watched that episode
+		if ep_watched < plex_ep:
+			# hum.update_entry(hb_id, episodes_watched=plex_ep)
+			print("List updated.")
+	except ValueError:
+		print("Not in list")
 
 while True:
 	update_hb_lib()
