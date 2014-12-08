@@ -15,6 +15,8 @@ url = "http://"+host+":"+port+"/library/sections/1/recentlyViewed"
 doc = xml.dom.minidom.parse(ur.urlopen(url))
 attr = doc.getElementsByTagName("Video")[0].getAttribute("title")
 
+session_url = "http://"+host+":"+port+"/status/sessions"
+
 def update_hb_lib():
 	# hummingbird init
 	username = cf["hummingbird.me"]["user"]
@@ -41,10 +43,10 @@ def update_hb_lib():
 			ep_watched = bird[res].episodes_watched			# watched count
 			break
 
-		print(ep_title, plex_ep)
-		print(hb_id, ep_watched)
+		# print(ep_title, plex_ep)
+		# print(hb_id, ep_watched)
 
-		# check if already watched that episode
+		# check in hb list if already watched that episode
 		if ep_watched < plex_ep:
 			hum.update_entry(hb_id, episodes_watched=plex_ep)
 			print("List updated.")
@@ -52,5 +54,15 @@ def update_hb_lib():
 		print("Not in list")
 
 while True:
-	update_hb_lib()
+	# check if plex is playing something and wait for it to finish before updating the list
+	sdoc = xml.dom.minidom.parse(ur.urlopen(session_url))
+	playing = int(sdoc.getElementsByTagName("MediaContainer")[0].getAttribute("size"))
+	
+	if playing:
+		sname = sdoc.getElementsByTagName("Video")[0].getAttribute("title")
+		status = sdoc.getElementsByTagName("Player")[0].getAttribute("state")
+		print(sname+" is "+status)
+	else:
+		update_hb_lib()
+
 	time.sleep(5)
