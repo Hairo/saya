@@ -17,14 +17,21 @@ attr = doc.getElementsByTagName("Video")[0].getAttribute("title")
 
 session_url = "http://"+host+":"+port+"/status/sessions"
 
-# split plex data to get the show name and episode watched
-try:
-	plex_video_tag = list(filter(None, re.findall(r"(.*?)(?:\[.*?\]|$)", attr)))[0].strip()
-	plex_ep = plex_video_tag.split(" - ")[1]
-	ep_title = plex_video_tag.split(" - ")[0]
-except IndexError:
-	plex_ep = re.findall(r'- (.*?) ',attr)[0]
-	ep_title = attr.split(" - ")[0]
+# parse plex data to get the show name and episode watched
+if "(" in attr and "[" in attr:
+	re1 = r"(.*?)(?:\[.*?\]|$)"
+	re2 = r"(.*?)(?:\(.*?\)|$)"
+	attr2 = list(filter(None, re.findall(re1, attr)))[0].strip()
+	plex_video_tag = list(filter(None, re.findall(re2, attr2)))[0].strip()
+elif "(" in attr:
+	re2 = r"(.*?)(?:\(.*?\)|$)"
+	plex_video_tag = list(filter(None, re.findall(re2, attr)))[0].strip()
+elif "[" in attr:
+	re1 = r"(.*?)(?:\[.*?\]|$)"
+	plex_video_tag = list(filter(None, re.findall(re1, attr)))[0].strip()
+
+plex_ep = plex_video_tag.split(" - ")[1]
+ep_title = plex_video_tag.split(" - ")[0]
 
 print(ep_title, plex_ep)
 
