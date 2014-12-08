@@ -19,14 +19,14 @@ session_url = "http://"+host+":"+port+"/status/sessions"
 
 # split plex data to get the show name and episode watched
 try:
-	plex_video_tag = re.findall(r"(.*?)(?:\[.*?\]|$)", attr)[1].strip()
+	plex_video_tag = list(filter(None, re.findall(r"(.*?)(?:\[.*?\]|$)", attr)))[0].strip()
 	plex_ep = plex_video_tag.split(" - ")[1]
 	ep_title = plex_video_tag.split(" - ")[0]
 except IndexError:
 	plex_ep = re.findall(r'- (.*?) ',attr)[0]
 	ep_title = attr.split(" - ")[0]
 
-	print(ep_title, plex_ep)
+print(ep_title, plex_ep)
 
 def update_hb_lib():
 	# hummingbird init
