@@ -29,11 +29,13 @@ elif "(" in attr:
 elif "[" in attr:
 	re1 = r"(.*?)(?:\[.*?\]|$)"
 	plex_video_tag = list(filter(None, re.findall(re1, attr)))[0].strip()
+else:
+	plex_video_tag = attr
 
 plex_ep = plex_video_tag.split(" - ")[1]
 ep_title = plex_video_tag.split(" - ")[0]
 
-print(ep_title, plex_ep)
+# print(ep_title, plex_ep)
 
 def update_hb_lib():
 	# hummingbird init
