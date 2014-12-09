@@ -46,8 +46,10 @@ def update_hb_lib():
 	# get currently watching list
 	bird = hum.get_library(username, status="currently-watching")
 	titles = []
+	alt_titles = []
 	for i in range(len(bird)):
   		titles.append(bird[i].anime.title.lower())
+  		alt_titles.append(bird[i].anime.alternate_title.lower())
 
 	# get currently watching list data from hummingbird and compare it with the
 	# last watched item from plex
@@ -58,13 +60,20 @@ def update_hb_lib():
 			hb_id = bird[res].anime.anime_id 				# anime id
 			ep_watched = bird[res].episodes_watched			# watched count
 			break
+	# try the alt titles if the main ones are not found
+	except ValueError:
+		keyword = max(ep_title.split(" "), key=len).lower()
+		print(keyword)
+		for t in range(len(alt_titles)):
+			res = alt_titles.index("".join([x for x in alt_titles if keyword in x]))
+			hb_id = bird[res].anime.anime_id 				# anime id
+			ep_watched = bird[res].episodes_watched			# watched count
+			break
 
 		# check in hb list if already watched that episode
 		if ep_watched < int(plex_ep):
 			hum.update_entry(hb_id, episodes_watched=plex_ep)
 			print(ep_title+" was updated to episode "+plex_ep)
-	except ValueError:
-		print("Not in list")
 
 while True:
 	# check if plex is playing something and wait for it to finish before updating the list
