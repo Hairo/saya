@@ -55,15 +55,15 @@ def update_hb_lib():
 	# last watched item from plex
 	keyword = max(ep_title.split(" "), key=len).lower()
 	for t in range(len(titles)):
-		if keyword in titles:
-			res = titles.index(keyword)
-		elif keyword in alt_titles:
-			res = alt_titles.index(keyword)
+		if any(keyword in s for s in titles):
+			res = titles.index("".join([x for x in titles if keyword in x]))
+		elif any(keyword in s for s in alt_titles):
+			res = alt_titles.index("".join([x for x in alt_titles if keyword in x]))
 		break
 
 	try:
-		hb_id = bird[res].anime.anime_id 				# anime id
-		ep_watched = bird[res].episodes_watched			# watched count
+		hb_id = bird[res].anime.anime_id 			# anime id
+		ep_watched = bird[res].episodes_watched		# watched count
 
 		# check in hb list if already watched that episode
 		if ep_watched < int(plex_ep):
