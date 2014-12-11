@@ -18,24 +18,25 @@ attr = doc.getElementsByTagName("Video")[0].getAttribute("title")
 session_url = "http://"+host+":"+port+"/status/sessions"
 
 # parse plex data to get the show name and episode watched
-if "(" in attr and "[" in attr:
-	re1 = r"(.*?)(?:\[.*?\]|$)"
-	re2 = r"(.*?)(?:\(.*?\)|$)"
-	attr2 = list(filter(None, re.findall(re1, attr)))[0].strip()
-	plex_video_tag = list(filter(None, re.findall(re2, attr2)))[0].strip()
-elif "(" in attr:
-	re2 = r"(.*?)(?:\(.*?\)|$)"
-	plex_video_tag = list(filter(None, re.findall(re2, attr)))[0].strip()
-elif "[" in attr:
-	re1 = r"(.*?)(?:\[.*?\]|$)"
-	plex_video_tag = list(filter(None, re.findall(re1, attr)))[0].strip()
-else:
-	plex_video_tag = attr
+def plex_parse():
+	if "(" in attr and "[" in attr:
+		re1 = r"(.*?)(?:\[.*?\]|$)"
+		re2 = r"(.*?)(?:\(.*?\)|$)"
+		attr2 = list(filter(None, re.findall(re1, attr)))[0].strip()
+		plex_video_tag = list(filter(None, re.findall(re2, attr2)))[0].strip()
+	elif "(" in attr:
+		re2 = r"(.*?)(?:\(.*?\)|$)"
+		plex_video_tag = list(filter(None, re.findall(re2, attr)))[0].strip()
+	elif "[" in attr:
+		re1 = r"(.*?)(?:\[.*?\]|$)"
+		plex_video_tag = list(filter(None, re.findall(re1, attr)))[0].strip()
+	else:
+		plex_video_tag = attr
 
-plex_ep = plex_video_tag.split(" - ")[1]
-ep_title = plex_video_tag.split(" - ")[0]
+	epno = plex_video_tag.split(" - ")[1]
+	title = plex_video_tag.split(" - ")[0]
 
-# print(ep_title, plex_ep)
+	return [title, epno]
 
 def update_hb_lib():
 	# hummingbird init
@@ -51,6 +52,9 @@ def update_hb_lib():
   		titles.append(bird[i].anime.title.lower())
   		alt_titles.append(bird[i].anime.alternate_title.lower())
 
+	ep_title =  plex_parse()[0]
+	plex_ep = plex_parse()[1]
+
 	# get currently watching list data from hummingbird and compare it with the
 	# last watched item from plex
 	keyword = max(ep_title.split(" "), key=len).lower()
@@ -63,7 +67,7 @@ def update_hb_lib():
 
 	try:
 		hb_id = bird[res].anime.anime_id 			# anime id
-		ep_watched = bird[res].episodes_watched		# watched count
+		ep_watched = bird[res].episodes_watched			# watched count
 
 		# check in hb list if already watched that episode
 		if ep_watched < int(plex_ep):
@@ -86,4 +90,4 @@ while True:
 	else:
 		update_hb_lib()
 
-	time.sleep(5)
+	time.sleep(300)
