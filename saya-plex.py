@@ -8,17 +8,18 @@ import hummingbird as hb
 cf = configparser.ConfigParser()
 cf.read('saya.conf')
 
-# Get last watched item from plex xml data
 host = cf["plex"]["host"]
 port = cf["plex"]["port"]
-url = "http://"+host+":"+port+"/library/sections/1/recentlyViewed"
-doc = xml.dom.minidom.parse(ur.urlopen(url))
-attr = doc.getElementsByTagName("Video")[0].getAttribute("title")
 
+url = "http://"+host+":"+port+"/library/sections/1/recentlyViewed"
 session_url = "http://"+host+":"+port+"/status/sessions"
 
 # parse plex data to get the show name and episode watched
 def plex_parse():
+	# Get last watched item from plex xml data
+	doc = xml.dom.minidom.parse(ur.urlopen(url))
+	attr = doc.getElementsByTagName("Video")[0].getAttribute("title")
+
 	if "(" in attr and "[" in attr:
 		re1 = r"(.*?)(?:\[.*?\]|$)"
 		re2 = r"(.*?)(?:\(.*?\)|$)"
@@ -75,8 +76,8 @@ def update_hb_lib():
 			print(ep_title+" was updated to episode "+plex_ep)
 		else:
 			print("Ya lo viste...")
-	except UnboundLocalError:
-		print("Not in list")
+	except UnboundLocalError as e:
+		print("Not in list", str(e))
 
 while True:
 	# check if plex is playing something and wait for it to finish before updating the list
