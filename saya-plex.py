@@ -73,9 +73,9 @@ def update_hb_lib():
 		# check in hb list if already watched that episode
 		if ep_watched < int(plex_ep):
 			hum.update_entry(hb_id, episodes_watched=plex_ep)
-			print(ep_title+" was updated to episode "+plex_ep)
+			print("HB: "+ep_title+" was updated to episode "+plex_ep)
 		else:
-			print("Ya lo viste...")
+			print("HB: Ya lo viste...")
 	except UnboundLocalError as e:
 		print("Not in list", str(e))
 
@@ -84,14 +84,14 @@ def update_mal_lib():
 	username = cf["myanimelist.net"]["user"]
 	passw = cf["myanimelist.net"]["password"]
 
-	auth_handler = ur.HTTPBasicAuthHandler()
-	auth_handler.add_password(realm='Saya-plex',
-							uri='http://myanimelist.net/api/',
-							user=username,
-							passwd=passw)
-
+	p = ur.HTTPPasswordMgrWithDefaultRealm()
+	p.add_password(None, "http://myanimelist.net/api/", username, passw)
+	auth_handler = ur.HTTPBasicAuthHandler(p)
+	
 	opener = ur.build_opener(auth_handler)
-	opener.addheaders = [('User-agent', 'api-indiv'), ("Content-Type","applicaiton/xml;charset=utf-8")]
+	opener.addheaders = [('User-agent', 'api-indiv-6F8D1D7F7F64705A908E58D66CF20B2A'), 
+						("Content-Type","application/x-www-form-urlencoded")]
+	ur.install_opener(opener)
 
 	# get currently watching list
 	url = "http://myanimelist.net/malappinfo.php?u="+username+"&status=all&type=anime"
@@ -121,7 +121,7 @@ def update_mal_lib():
 
 		# check in MAL list if already watched that episode
 		if ep_watched < int(plex_ep):
-			data = up.urlencode(('<?xml version="1.0" encoding="UTF-8"?>'
+			data = up.urlencode({'data': ('<?xml version="1.0" encoding="UTF-8"?>'
 					"<entry>"
 							"<episode>"+plex_ep+"</episode>"
 							"<status></status>"
@@ -139,12 +139,12 @@ def update_mal_lib():
 							"<comments></comments>"
 							"<fansub_group></fansub_group>"
 							"<tags></tags>"
-					"</entry>"))
+					"</entry>")})
 			bin_data = data.encode('utf-8')
-			opener.open("http://myanimelist.net/api/mangalist/add/"+mal_id+".xml", data=bin_data)
-			print(ep_title+" was updated to episode "+plex_ep)
+			opener.open(ur.Request("http://myanimelist.net/api/animelist/update/"+mal_id+".xml", data=bin_data))
+			print("MAL: "+ep_title+" was updated to episode "+plex_ep)
 		else:
-			print("Ya lo viste...")
+			print("MAL: Ya lo viste...")
 	except UnboundLocalError as e:
 		print("Not in list", str(e))
 
@@ -159,6 +159,6 @@ while True:
 		print(sname+" is "+status)
 	else:
 		update_hb_lib()
-		# update_mal_lib()
+		update_mal_lib()
 
 	time.sleep(300)
