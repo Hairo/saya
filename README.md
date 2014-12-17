@@ -13,7 +13,7 @@ Currently supported file naming coventions (where XX is the episode count and [\
 
 =========
 TODO:
-- myanimelist.net support
+- ~~myanimelist.net support~~
 - Dual list support (update both HB and MAL lists at the same time)
 - ~~Support for most of the file naming conventions~~
 - Movies/OVAs/ support
