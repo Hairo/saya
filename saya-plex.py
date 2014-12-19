@@ -77,7 +77,7 @@ def update_hb_lib():
 		else:
 			print("HB: Ya lo viste...")
 	except UnboundLocalError as e:
-		print("Not in list", str(e))
+		print(str(e))
 
 def update_mal_lib():
 	# MAL init
@@ -97,13 +97,14 @@ def update_mal_lib():
 	url = "http://myanimelist.net/malappinfo.php?u="+username+"&status=all&type=anime"
 	doc = xml.dom.minidom.parse(opener.open(url))
 
-	titles, ids, weps = [], [], []
+	titles, ids, weps, ep_count = [], [], [], []
 	for i in range(len(doc.getElementsByTagName("series_title"))):
 		att = doc.getElementsByTagName("my_status")[i].firstChild.nodeValue
 		if att == "1":
 			titles.append(doc.getElementsByTagName("series_title")[i].firstChild.nodeValue.lower())
 			ids.append(doc.getElementsByTagName("series_animedb_id")[i].firstChild.nodeValue)
 			weps.append(doc.getElementsByTagName("my_watched_episodes")[i].firstChild.nodeValue)
+			ep_count.append(doc.getElementsByTagName("series_episodes")[i].firstChild.nodeValue)
 
 	ep_title =  plex_parse()[0]
 	plex_ep = plex_parse()[1]
@@ -118,35 +119,24 @@ def update_mal_lib():
 	try:
 		mal_id = ids[res]			# anime id
 		ep_watched = int(weps[res])			# watched count
+		print(mal_id, ep_watched)
 
 		# check in MAL list if already watched that episode
 		if ep_watched < int(plex_ep):
-			data = up.urlencode({'data': ('<?xml version="1.0" encoding="UTF-8"?>'
-					"<entry>"
-							"<episode>"+plex_ep+"</episode>"
-							"<status></status>"
-							"<score></score>"
-							"<downloaded_episodes></downloaded_episodes>"
-							"<storage_type></storage_type>"
-							"<storage_value></storage_value>"
-							"<times_rewatched></times_rewatched>"
-							"<rewatch_value></rewatch_value>"
-							"<date_start></date_start>"
-							"<date_finish></date_finish>"
-							"<priority></priority>"
-							"<enable_discussion></enable_discussion>"
-							"<enable_rewatching></enable_rewatching>"
-							"<comments></comments>"
-							"<fansub_group></fansub_group>"
-							"<tags></tags>"
-					"</entry>")})
+			data = up.urlencode({'data': '<?xml version="1.0" encoding="UTF-8"?><entry><episode>'+plex_ep+'</episode></entry>'})
 			bin_data = data.encode('utf-8')
 			opener.open(ur.Request("http://myanimelist.net/api/animelist/update/"+mal_id+".xml", data=bin_data))
 			print("MAL: "+ep_title+" was updated to episode "+plex_ep)
+			# add to completed list if finished (hb does this automatically)
+			print(ep_count[res], plex_ep)
+			if ep_count[res] == plex_ep:
+				data = up.urlencode({'data': '<?xml version="1.0" encoding="UTF-8"?><entry><status>2</status></entry>'})
+				bin_data = data.encode('utf-8')
+				opener.open(ur.Request("http://myanimelist.net/api/animelist/update/"+mal_id+".xml", data=bin_data))
 		else:
 			print("MAL: Ya lo viste...")
 	except UnboundLocalError as e:
-		print("Not in list", str(e))
+		print(str(e))
 
 while True:
 	# check if plex is playing something and wait for it to finish before updating the list
@@ -158,7 +148,16 @@ while True:
 		status = sdoc.getElementsByTagName("Player")[0].getAttribute("state")
 		print(sname+" is "+status)
 	else:
-		update_hb_lib()
-		update_mal_lib()
+		hb_active = int(cf["hummingbird.me"]["active"])
+		mal_active = int(cf["myanimelist.net"]["active"])
+		if mal_active and hb_active:
+			update_hb_lib()
+			update_mal_lib()
+		elif mal_active:
+			update_mal_lib()
+		elif hb_active:
+			update_mal_lib()
+		else:
+			print("No configuration.")
 
 	time.sleep(300)
