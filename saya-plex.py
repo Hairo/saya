@@ -3,6 +3,7 @@
 import xml.dom.minidom, configparser, time, re
 import urllib.request as ur
 import urllib.parse as up
+import urllib.error as ue
 import hummingbird as hb
 
 # read config file
@@ -75,7 +76,7 @@ def update_hb_lib():
 			hum.update_entry(hb_id, episodes_watched=plex_ep)
 			print("HB: "+ep_title+" was updated to episode "+plex_ep)
 		else:
-			print("HB: Ya lo viste...")
+			print("HB: Watched it already...")
 	except UnboundLocalError as e:
 		print("HB: Not in list.")
 		# print(str(e))
@@ -133,31 +134,34 @@ def update_mal_lib():
 				bin_data = data.encode('utf-8')
 				opener.open(ur.Request("http://myanimelist.net/api/animelist/update/"+mal_id+".xml", data=bin_data))
 		else:
-			print("MAL: Ya lo viste...")
+			print("MAL: Watched it already...")
 	except (UnboundLocalError, ValueError) as e:
 		print("MAL: Not in list.")
 		# print(str(e))
 
-while True:
-	# check if plex is playing something and wait for it to finish before updating the list
-	sdoc = xml.dom.minidom.parse(ur.urlopen(session_url))
-	playing = int(sdoc.getElementsByTagName("MediaContainer")[0].getAttribute("size"))
+try: 
+	while True:
+		# check if plex is playing something and wait for it to finish before updating the list
+		sdoc = xml.dom.minidom.parse(ur.urlopen(session_url))
+		playing = int(sdoc.getElementsByTagName("MediaContainer")[0].getAttribute("size"))
 	
-	if playing:
-		sname = sdoc.getElementsByTagName("Video")[0].getAttribute("title")
-		status = sdoc.getElementsByTagName("Player")[0].getAttribute("state")
-		print(sname+" is "+status)
-	else:
-		hb_active = int(cf["hummingbird.me"]["active"])
-		mal_active = int(cf["myanimelist.net"]["active"])
-		if mal_active and hb_active:
-			update_hb_lib()
-			update_mal_lib()
-		elif mal_active:
-			update_mal_lib()
-		elif hb_active:
-			update_mal_lib()
+		if playing:
+			sname = sdoc.getElementsByTagName("Video")[0].getAttribute("title")
+			status = sdoc.getElementsByTagName("Player")[0].getAttribute("state")
+			print(sname+" is "+status)
 		else:
-			print("No configuration.")
+			hb_active = int(cf["hummingbird.me"]["active"])
+			mal_active = int(cf["myanimelist.net"]["active"])
+			if mal_active and hb_active:
+				update_hb_lib()
+				update_mal_lib()
+			elif mal_active:
+				update_mal_lib()
+			elif hb_active:
+				update_mal_lib()
+			else:
+				print("No configuration.")
 
-	time.sleep(300)
+		time.sleep(300)
+except ue.URLError: 
+	print("Plex is not running.")
