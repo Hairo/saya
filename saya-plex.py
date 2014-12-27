@@ -12,6 +12,7 @@ cf.read('saya.conf')
 
 host = cf["plex"]["host"]
 port = cf["plex"]["port"]
+timer = int(cf["plex"]["timer"])
 
 url = "http://"+host+":"+port+"/library/sections/1/recentlyViewed"
 session_url = "http://"+host+":"+port+"/status/sessions"
@@ -166,6 +167,6 @@ try:
 			else:
 				print("No configuration.")
 
-		time.sleep(120)
+		time.sleep(timer)
 except ue.URLError: 
 	print("Plex is not running.")
