@@ -75,6 +75,8 @@ def update_hb_lib():
 		if ep_watched < int(plex_ep):
 			hum.update_entry(hb_id, episodes_watched=plex_ep)
 			print("HB: "+ep_title+" was updated to episode "+plex_ep)
+			if str(bird[res].anime.episode_count) == plex_ep:
+				print("HB: "+ep_title+" finished.")
 		else:
 			print("HB: Watched it already...")
 	except UnboundLocalError as e:
@@ -133,6 +135,7 @@ def update_mal_lib():
 				data = up.urlencode({'data': '<?xml version="1.0" encoding="UTF-8"?><entry><status>2</status></entry>'})
 				bin_data = data.encode('utf-8')
 				opener.open(ur.Request("http://myanimelist.net/api/animelist/update/"+mal_id+".xml", data=bin_data))
+				print("MAL: "+ep_title+" finished.")
 		else:
 			print("MAL: Watched it already...")
 	except (UnboundLocalError, ValueError) as e:
