@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import xml.dom.minidom, configparser, time, re
+import xml.dom.minidom, configparser, time, re, ntpath
 import urllib.request as ur
 import urllib.parse as up
 import urllib.error as ue
@@ -20,21 +20,22 @@ session_url = "http://"+host+":"+port+"/status/sessions"
 def plex_parse():
 	# Get last watched item from plex xml data
 	doc = xml.dom.minidom.parse(ur.urlopen(url))
-	attr = doc.getElementsByTagName("Video")[0].getAttribute("title")
+	attr = doc.getElementsByTagName("Part")[0].getAttribute("file")
+	filename = ntpath.basename(attr)[:-4]
 
-	if "(" in attr and "[" in attr:
+	if "(" in filename and "[" in filename:
 		re1 = r"(.*?)(?:\[.*?\]|$)"
 		re2 = r"(.*?)(?:\(.*?\)|$)"
-		attr2 = list(filter(None, re.findall(re1, attr)))[0].strip()
-		plex_video_tag = list(filter(None, re.findall(re2, attr2)))[0].strip()
-	elif "(" in attr:
+		filename2 = list(filter(None, re.findall(re1, filename)))[0].strip()
+		plex_video_tag = list(filter(None, re.findall(re2, filename2)))[0].strip()
+	elif "(" in filename:
 		re2 = r"(.*?)(?:\(.*?\)|$)"
-		plex_video_tag = list(filter(None, re.findall(re2, attr)))[0].strip()
-	elif "[" in attr:
+		plex_video_tag = list(filter(None, re.findall(re2, filename)))[0].strip()
+	elif "[" in filename:
 		re1 = r"(.*?)(?:\[.*?\]|$)"
-		plex_video_tag = list(filter(None, re.findall(re1, attr)))[0].strip()
+		plex_video_tag = list(filter(None, re.findall(re1, filename)))[0].strip()
 	else:
-		plex_video_tag = attr
+		plex_video_tag = filename
 
 	epno = plex_video_tag.split(" - ")[1]
 	title = plex_video_tag.split(" - ")[0]
@@ -165,6 +166,6 @@ try:
 			else:
 				print("No configuration.")
 
-		time.sleep(300)
+		time.sleep(120)
 except ue.URLError: 
 	print("Plex is not running.")
