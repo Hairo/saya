@@ -53,8 +53,8 @@ def update_hb_lib():
 	bird = hum.get_library(username, status="currently-watching")
 	titles, alt_titles = [], []
 	for i in range(len(bird)):
-  		titles.append(bird[i].anime.title.lower())
-  		alt_titles.append(bird[i].anime.alternate_title.lower())
+  		titles.append(str(bird[i].anime.title).lower())
+  		alt_titles.append(str(bird[i].anime.alternate_title).lower())
 
 	ep_title =  plex_parse()[0]
 	plex_ep = plex_parse()[1]
