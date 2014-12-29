@@ -144,8 +144,8 @@ def update_mal_lib():
 		print("MAL: Not in list.")
 		# print(str(e))
 
-try: 
-	while True:
+while True:
+	try: 
 		# check if plex is playing something and wait for it to finish before updating the list
 		sdoc = xml.dom.minidom.parse(ur.urlopen(session_url))
 		playing = int(sdoc.getElementsByTagName("MediaContainer")[0].getAttribute("size"))
@@ -166,7 +166,7 @@ try:
 				update_mal_lib()
 			else:
 				print("No configuration.")
+	except ue.URLError: 
+		print("Plex is not running.")
 
-		time.sleep(timer)
-except ue.URLError: 
-	print("Plex is not running.")
+	time.sleep(timer)
