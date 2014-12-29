@@ -151,7 +151,8 @@ while True:
 		playing = int(sdoc.getElementsByTagName("MediaContainer")[0].getAttribute("size"))
 	
 		if playing:
-			sname = sdoc.getElementsByTagName("Video")[0].getAttribute("title")
+			sattr = sdoc.getElementsByTagName("Part")[0].getAttribute("file")
+			sname = ntpath.basename(sattr)[:-4]
 			status = sdoc.getElementsByTagName("Player")[0].getAttribute("state")
 			print(sname+" is "+status)
 		else:
