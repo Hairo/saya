@@ -164,7 +164,7 @@ while True:
 			elif mal_active:
 				update_mal_lib()
 			elif hb_active:
-				update_mal_lib()
+				update_hb_lib()
 			else:
 				print("No configuration.")
 	except ue.URLError: 
