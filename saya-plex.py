@@ -14,9 +14,6 @@ host = cf["plex"]["host"]
 port = cf["plex"]["port"]
 timer = int(cf["plex"]["timer"])
 
-session_url = "http://"+host+":"+port+"/status/sessions"
-sdoc = xml.dom.minidom.parse(ur.urlopen(session_url))
-
 # parse plex data to get the show name and episode watched
 def plex_parse():
 	# get plex section key from lastest watched video
@@ -159,14 +156,15 @@ def update_mal_lib():
 while True:
 	try: 
 		# check if plex is playing something and wait for it to finish before updating the list
+		session_url = "http://"+host+":"+port+"/status/sessions"
+		sdoc = xml.dom.minidom.parse(ur.urlopen(session_url))
 		playing = int(sdoc.getElementsByTagName("MediaContainer")[0].getAttribute("size"))
 	
 		if playing:
 			sattr = sdoc.getElementsByTagName("Part")[0].getAttribute("file")
 			sname = ntpath.basename(sattr)[:-4]
 			status = sdoc.getElementsByTagName("Player")[0].getAttribute("state")
-			idd = sdoc.getElementsByTagName("Video")[0].getAttribute("librarySectionID")
-			print(sname+" is "+status+" in section "+idd)
+			print(sname+" is "+status)
 		else:
 			hb_active = int(cf["hummingbird.me"]["active"])
 			mal_active = int(cf["myanimelist.net"]["active"])
