@@ -14,11 +14,25 @@ host = cf["plex"]["host"]
 port = cf["plex"]["port"]
 timer = int(cf["plex"]["timer"])
 
-url = "http://"+host+":"+port+"/library/sections/1/recentlyViewed"
 session_url = "http://"+host+":"+port+"/status/sessions"
+sdoc = xml.dom.minidom.parse(ur.urlopen(session_url))
 
 # parse plex data to get the show name and episode watched
 def plex_parse():
+	# get plex section key from lastest watched video
+	sections = "http://"+host+":"+port+"/library/sections"
+	sedoc = xml.dom.minidom.parse(ur.urlopen(sections))
+	leng = int(sedoc.getElementsByTagName("MediaContainer")[0].getAttribute("size"))
+
+	tstamps = []
+	for item in range(leng):
+		key = sedoc.getElementsByTagName("Directory")[item].getAttribute("key")
+		xmld = xml.dom.minidom.parse(ur.urlopen(sections+"/"+key+"/recentlyViewed"))
+		tstamps.append(xmld.getElementsByTagName("Video")[0].getAttribute("lastViewedAt"))
+
+	key = sedoc.getElementsByTagName("Directory")[tstamps.index(max(tstamps))].getAttribute("key")
+	url = sections+"/"+key+"/recentlyViewed"
+
 	# Get last watched item from plex xml data
 	doc = xml.dom.minidom.parse(ur.urlopen(url))
 	attr = doc.getElementsByTagName("Part")[0].getAttribute("file")
@@ -56,8 +70,7 @@ def update_hb_lib():
   		titles.append(str(bird[i].anime.title).lower())
   		alt_titles.append(str(bird[i].anime.alternate_title).lower())
 
-	ep_title =  plex_parse()[0]
-	plex_ep = plex_parse()[1]
+	ep_title, plex_ep = plex_parse()
 
 	# get currently watching list data from hummingbird and compare it with the
 	# last watched item from plex
@@ -112,8 +125,7 @@ def update_mal_lib():
 			weps.append(doc.getElementsByTagName("my_watched_episodes")[i].firstChild.nodeValue)
 			ep_count.append(doc.getElementsByTagName("series_episodes")[i].firstChild.nodeValue)
 
-	ep_title =  plex_parse()[0]
-	plex_ep = plex_parse()[1]
+	ep_title, plex_ep = plex_parse()
 
 	try:
 		# get currently watching list data from MAL and compare it with the
@@ -147,14 +159,14 @@ def update_mal_lib():
 while True:
 	try: 
 		# check if plex is playing something and wait for it to finish before updating the list
-		sdoc = xml.dom.minidom.parse(ur.urlopen(session_url))
 		playing = int(sdoc.getElementsByTagName("MediaContainer")[0].getAttribute("size"))
 	
 		if playing:
 			sattr = sdoc.getElementsByTagName("Part")[0].getAttribute("file")
 			sname = ntpath.basename(sattr)[:-4]
 			status = sdoc.getElementsByTagName("Player")[0].getAttribute("state")
-			print(sname+" is "+status)
+			idd = sdoc.getElementsByTagName("Video")[0].getAttribute("librarySectionID")
+			print(sname+" is "+status+" in section "+idd)
 		else:
 			hb_active = int(cf["hummingbird.me"]["active"])
 			mal_active = int(cf["myanimelist.net"]["active"])
