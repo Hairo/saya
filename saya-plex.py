@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 
-import xml.dom.minidom, configparser, time, re, ntpath
+import xml.dom.minidom, re, ntpath
+import sys, os, configparser, time
 import urllib.request as ur
 import urllib.parse as up
 import urllib.error as ue
 import hummingbird as hb
 
 # read config file
+os.chdir(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0]))))
 cf = configparser.ConfigParser()
 cf.read('saya.conf')
 
@@ -38,19 +40,18 @@ def plex_parse():
 	if "(" in filename and "[" in filename:
 		re1 = r"(.*?)(?:\[.*?\]|$)"
 		re2 = r"(.*?)(?:\(.*?\)|$)"
-		filename2 = list(filter(None, re.findall(re1, filename)))[0].strip()
-		plex_video_tag = list(filter(None, re.findall(re2, filename2)))[0].strip()
+		filename2 = "".join(list(filter(None, re.findall(re1, filename)))).strip()
+		plex_video_tag = "".join(list(filter(None, re.findall(re2, filename2)))).strip()
 	elif "(" in filename:
 		re2 = r"(.*?)(?:\(.*?\)|$)"
-		plex_video_tag = list(filter(None, re.findall(re2, filename)))[0].strip()
+		plex_video_tag = "".join(list(filter(None, re.findall(re2, filename)))).strip()
 	elif "[" in filename:
 		re1 = r"(.*?)(?:\[.*?\]|$)"
-		plex_video_tag = list(filter(None, re.findall(re1, filename)))[0].strip()
+		plex_video_tag = "".join(list(filter(None, re.findall(re1, filename)))).strip()
 	else:
 		plex_video_tag = filename
-
-	epno = plex_video_tag.split(" - ")[1]
-	title = plex_video_tag.split(" - ")[0]
+	
+	title, epno = plex_video_tag.split(" - ")
 
 	return [title, epno]
 
