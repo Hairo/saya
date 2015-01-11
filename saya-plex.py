@@ -35,7 +35,7 @@ def plex_parse():
 	# Get last watched item from plex xml data
 	doc = xml.dom.minidom.parse(ur.urlopen(url))
 	attr = doc.getElementsByTagName("Part")[0].getAttribute("file")
-	filename = ntpath.basename(attr)[:-4]
+	filename = up.unquote(ntpath.basename(attr)[:-4])
 
 	if "(" in filename and "[" in filename:
 		re1 = r"(.*?)(?:\[.*?\]|$)"
@@ -163,7 +163,7 @@ while True:
 	
 		if playing:
 			sattr = sdoc.getElementsByTagName("Part")[0].getAttribute("file")
-			sname = ntpath.basename(sattr)[:-4]
+			sname = up.unquote(ntpath.basename(sattr)[:-4])
 			status = sdoc.getElementsByTagName("Player")[0].getAttribute("state")
 			print(sname+" is "+status)
 		else:
