@@ -51,7 +51,10 @@ def plex_parse():
 	else:
 		plex_video_tag = filename
 	
-	title, epno = plex_video_tag.split(" - ")
+	if len(plex_video_tag) == 2:
+		title, epno = plex_video_tag.split(" - ")
+	else:
+		title, epno = [plex_video_tag, "1"]
 
 	return [title, epno]
 
