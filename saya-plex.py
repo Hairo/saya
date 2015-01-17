@@ -50,8 +50,8 @@ def plex_parse():
 		plex_video_tag = "".join(list(filter(None, re.findall(re1, filename)))).strip()
 	else:
 		plex_video_tag = filename
-	
-	if len(plex_video_tag) == 2:
+
+	if len(plex_video_tag.split(" - ")) == 2:
 		title, epno = plex_video_tag.split(" - ")
 	else:
 		title, epno = [plex_video_tag, "1"]
@@ -141,11 +141,6 @@ def update_mal_lib():
 			elif any(keyword in s for s in alt_titles):
 				res = alt_titles.index("".join([x for x in alt_titles if keyword in x]))
 			break
-
-		# keyword = max(ep_title.split(" "), key=len).lower()
-		# for t in range(len(titles)):
-		# 	res = titles.index("".join([x for x in titles if keyword in x]))
-		# 	break
 
 		mal_id = ids[res]			# anime id
 		ep_watched = int(weps[res])			# watched count
