@@ -114,11 +114,14 @@ def update_mal_lib():
 	url = "http://myanimelist.net/malappinfo.php?u="+username+"&status=all&type=anime"
 	doc = xml.dom.minidom.parse(opener.open(url))
 
-	titles, ids, weps, ep_count = [], [], [], []
+	titles, alt_titles, ids, weps, ep_count = [], [], [], []
 	for i in range(len(doc.getElementsByTagName("series_title"))):
 		att = doc.getElementsByTagName("my_status")[i].firstChild.nodeValue
 		if att == "1":
 			titles.append(doc.getElementsByTagName("series_title")[i].firstChild.nodeValue.lower())
+			tag = doc.getElementsByTagName("series_synonyms")[i].firstChild.nodeValue.lower()
+			at = list(filter(None, tag.split("; ")))[0]
+			alt_titles.append(at)
 			ids.append(doc.getElementsByTagName("series_animedb_id")[i].firstChild.nodeValue)
 			weps.append(doc.getElementsByTagName("my_watched_episodes")[i].firstChild.nodeValue)
 			ep_count.append(doc.getElementsByTagName("series_episodes")[i].firstChild.nodeValue)
@@ -130,8 +133,16 @@ def update_mal_lib():
 		# last watched item from plex
 		keyword = max(ep_title.split(" "), key=len).lower()
 		for t in range(len(titles)):
-			res = titles.index("".join([x for x in titles if keyword in x]))
+			if any(keyword in s for s in titles):
+				res = titles.index("".join([x for x in titles if keyword in x]))
+			elif any(keyword in s for s in alt_titles):
+				res = alt_titles.index("".join([x for x in alt_titles if keyword in x]))
 			break
+
+		# keyword = max(ep_title.split(" "), key=len).lower()
+		# for t in range(len(titles)):
+		# 	res = titles.index("".join([x for x in titles if keyword in x]))
+		# 	break
 
 		mal_id = ids[res]			# anime id
 		ep_watched = int(weps[res])			# watched count
