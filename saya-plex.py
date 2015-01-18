@@ -117,14 +117,17 @@ def update_mal_lib():
 	url = "http://myanimelist.net/malappinfo.php?u="+username+"&status=all&type=anime"
 	doc = xml.dom.minidom.parse(opener.open(url))
 
-	titles, alt_titles, ids, weps, ep_count = [], [], [], []
+	titles, alt_titles, ids, weps, ep_count = [], [], [], [], []
 	for i in range(len(doc.getElementsByTagName("series_title"))):
 		att = doc.getElementsByTagName("my_status")[i].firstChild.nodeValue
 		if att == "1":
 			titles.append(doc.getElementsByTagName("series_title")[i].firstChild.nodeValue.lower())
-			tag = doc.getElementsByTagName("series_synonyms")[i].firstChild.nodeValue.lower()
-			at = list(filter(None, tag.split("; ")))[0]
-			alt_titles.append(at)
+			if doc.getElementsByTagName("series_synonyms")[i].firstChild == None:
+				alt_titles.append("")
+			else:
+				tag = doc.getElementsByTagName("series_synonyms")[i].firstChild.nodeValue.lower()
+				at = list(filter(None, tag.split("; ")))[0]
+				alt_titles.append(at)
 			ids.append(doc.getElementsByTagName("series_animedb_id")[i].firstChild.nodeValue)
 			weps.append(doc.getElementsByTagName("my_watched_episodes")[i].firstChild.nodeValue)
 			ep_count.append(doc.getElementsByTagName("series_episodes")[i].firstChild.nodeValue)
