@@ -1,3 +1,6 @@
+####This script is discontinued now, i added plex support to [trackma](https://github.com/z411/trackma), a more complete tracker.
+=========
+
 Saya
 =========
 
